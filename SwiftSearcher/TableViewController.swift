@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SafariServices
 
 class TableViewController: UITableViewController {
 
@@ -30,6 +31,7 @@ class TableViewController: UITableViewController {
         return 1
     }
 
+    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return projects.count
     }
@@ -42,6 +44,12 @@ class TableViewController: UITableViewController {
 
         return cell
     }
+    
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        showTutorial(index: indexPath.row)
+    }
+    
     // MARK: - Function
     
     func makeAttributedString(title: String, subtitle: String) -> NSAttributedString {
@@ -52,5 +60,15 @@ class TableViewController: UITableViewController {
         titleString.append(subtitleString)
 
         return titleString
+    }
+    
+    func showTutorial(index: Int) {
+        if let url = URL(string: "https://www.hackingwithswift.com/read/\(index + 1)") {
+            let config = SFSafariViewController.Configuration()
+            config.entersReaderIfAvailable = true
+
+            let vc = SFSafariViewController(url: url, configuration: config)
+            present(vc, animated: true)
+        }
     }
 }
