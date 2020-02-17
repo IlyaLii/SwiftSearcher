@@ -12,9 +12,18 @@ import SafariServices
 class TableViewController: UITableViewController {
 
     var projects = [[String]]()
+    var favorites = [Int]()
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        let defaults = UserDefaults.standard
+        if let savedFavorites = defaults.object(forKey: "favorites") as? [Int] {
+            favorites = savedFavorites
+        }
+        
+        tableView.isEditing = true
+        tableView.allowsSelectionDuringEditing = true
+        
         projects.append(["Project 1: Storm Viewer", "Constants and variables, UITableView, UIImageView, FileManager, storyboards"])
         projects.append(["Project 2: Guess the Flag", "@2x and @3x images, asset catalogs, integers, doubles, floats, operators (+= and -=), UIButton, enums, CALayer, UIColor, random numbers, actions, string interpolation, UIAlertController"])
         projects.append(["Project 3: Social Media", "UIBarButtonItem, UIActivityViewController, the Social framework, URL"])
@@ -41,13 +50,41 @@ class TableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         let project = projects[indexPath.row]
         cell.textLabel?.attributedText = makeAttributedString(title: project[0], subtitle: project[1])
-
+        if favorites.contains(indexPath.row) {
+            cell.editingAccessoryType = .checkmark
+        } else {
+            cell.editingAccessoryType = .none
+        }
+        
         return cell
     }
     
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         showTutorial(index: indexPath.row)
+    }
+    
+    override func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+        if favorites.contains(indexPath.row) {
+            return .delete
+        } else {
+            return .insert
+        }
+    }
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .insert {
+            favorites.append(indexPath.row)
+        } else {
+            if let index = favorites.firstIndex(of: indexPath.row) {
+                favorites.remove(at: index)
+            }
+        }
+        
+        let defaults = UserDefaults.standard
+        defaults.set(favorites, forKey: "favorites")
+
+        tableView.reloadRows(at: [indexPath], with: .none)
     }
     
     // MARK: - Function
