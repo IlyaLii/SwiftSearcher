@@ -8,6 +8,8 @@
 
 import UIKit
 import SafariServices
+import CoreSpotlight
+import MobileCoreServices
 
 class TableViewController: UITableViewController {
 
@@ -106,6 +108,33 @@ class TableViewController: UITableViewController {
 
             let vc = SFSafariViewController(url: url, configuration: config)
             present(vc, animated: true)
+        }
+    }
+    
+    func index(item: Int) {
+        let project = projects[item]
+        
+        let attributedSet = CSSearchableItemAttributeSet(itemContentType: kUTTypeText as String)
+        attributedSet.title = project[0]
+        attributedSet.contentDescription = project[1]
+        
+        let item = CSSearchableItem(uniqueIdentifier: "\(item)", domainIdentifier: "com.github", attributeSet: attributedSet)
+        item.expirationDate = Date.distantFuture
+        CSSearchableIndex.default().indexSearchableItems([item]) { (error) in
+            if let error = error {
+                print("Error! \(error), \(error.localizedDescription)")
+            } else {
+                print("Success!")
+            }
+        }
+    }
+    func deindex(item: Int) {
+        CSSearchableIndex.default().deleteSearchableItems(withIdentifiers: ["\(item)"]) { (error) in
+            if let error = error {
+                print("Error! \(error), \(error.localizedDescription)")
+            } else {
+                print("Success!")
+            }
         }
     }
 }
